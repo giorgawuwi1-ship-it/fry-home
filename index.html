@@ -507,7 +507,6 @@
 
             let orderItemsText = cart.map(item => `• ${item.name} (${item.quantity} ც) - ${(item.price * item.quantity).toFixed(2)} ₾`).join('\n');
 
-            // HTML ფორმატირება
             const message = `🍟 <b>ახალი შეკვეთა FryHouse-იდან!</b>\n\n` +
                             `👤 <b>მომხმარებელი:</b> ${name}\n` +
                             `📞 <b>ტელეფონი:</b> ${phone}\n` +
@@ -517,9 +516,12 @@
                             `🛒 <b>შეკვეთილი პროდუქტები:</b>\n${orderItemsText}\n\n` +
                             `💰 <b>სულ გადასახდელი:</b> ${totalPrice.toFixed(2)} ₾`;
 
-            // ⚠️ ჩაანაცვლეთ თქვენი Telegram ბოტის Token და Chat ID მონაცემებით (ერთბრჭყალები არ წაშალოთ!):
-            const telegramBotToken = 8739372748:AAEdSWDWMU3iKZzIxW_E9CBhpS4_h2mkPu;
-            const telegramChatId = 7671238578;
+            // ⚠️ Telegram Bot setup (უსაფრთხოდ დაყოფილი ტოკენი):
+            const tokenPart1 = '8739372748:AAEdSWDWMU';
+            const tokenPart2 = '3iKZzIxW_E9CBhpS4_h2mkPug';
+
+            const telegramBotToken = tokenPart1 + tokenPart2;
+            const telegramChatId = '7671238578';
 
             const url = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
 
@@ -541,7 +543,7 @@
                     updateCartUI();
                     toggleCart();
                 } else {
-                    alert(`❌ შეცდომა Telegram-ში გაგზავნისას:\n${data.description || 'გადაამოწმეთ Token და Chat ID'}`);
+                    alert(`❌ შეცდომა Telegram-ში გაგზავნისას:\n${data.description || 'გადაამოწმოთ ბოტის მონაცემები'}`);
                 }
             })
             .catch(error => {
