@@ -411,8 +411,16 @@
 
         let cart = [];
 
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
+            if (!grid) return;
             grid.innerHTML = products.map(product => `
                 <div class="product-card">
                     <img src="${product.image}" alt="${product.name}" class="product-img">
@@ -449,13 +457,15 @@
             const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            cartCount.textContent = totalCount;
+            if (cartCount) cartCount.textContent = totalCount;
+
+            if (!cartItems) return;
 
             if (cart.length === 0) {
                 cartItems.innerHTML = '<p style="text-align:center; color: gray; padding: 1rem;">კალათა ცარიელია</p>';
-                checkoutForm.style.display = 'none';
+                if (checkoutForm) checkoutForm.style.display = 'none';
             } else {
-                checkoutForm.style.display = 'block';
+                if (checkoutForm) checkoutForm.style.display = 'block';
                 cartItems.innerHTML = cart.map(item => `
                     <div class="cart-item">
                         <div>
@@ -471,7 +481,7 @@
                 `).join('');
             }
 
-            cartTotal.textContent = `სულ: ${totalPrice.toFixed(2)} ₾`;
+            if (cartTotal) cartTotal.textContent = `სულ: ${totalPrice.toFixed(2)} ₾`;
         }
 
         function changeQuantity(productId, delta) {
@@ -487,7 +497,9 @@
 
         function toggleCart() {
             const modal = document.getElementById('cartModal');
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            if (modal) {
+                modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+            }
         }
 
         function handleCheckout(event) {
@@ -498,14 +510,14 @@
                 return;
             }
 
-            const name = document.getElementById('userName').value;
-            const phone = document.getElementById('userPhone').value;
-            const address = document.getElementById('userAddress').value;
+            const name = escapeHtml(document.getElementById('userName').value);
+            const phone = escapeHtml(document.getElementById('userPhone').value);
+            const address = escapeHtml(document.getElementById('userAddress').value);
             const payment = document.getElementById('paymentMethod').value === 'cash' ? '💵 ნაღდი' : '💳 ბარათი';
-            const note = document.getElementById('userNote').value || 'არ არის';
+            const note = escapeHtml(document.getElementById('userNote').value || 'არ არის');
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            let orderItemsText = cart.map(item => `• ${item.name} (${item.quantity} ც) - ${(item.price * item.quantity).toFixed(2)} ₾`).join('\n');
+            let orderItemsText = cart.map(item => `• ${escapeHtml(item.name)} (${item.quantity} ც) - ${(item.price * item.quantity).toFixed(2)} ₾`).join('\n');
 
             const message = `🍟 <b>ახალი შეკვეთა FryHouse-იდან!</b>\n\n` +
                             `👤 <b>მომხმარებელი:</b> ${name}\n` +
@@ -516,7 +528,7 @@
                             `🛒 <b>შეკვეთილი პროდუქტები:</b>\n${orderItemsText}\n\n` +
                             `💰 <b>სულ გადასახდელი:</b> ${totalPrice.toFixed(2)} ₾`;
 
-            // ⚠️ Telegram Bot setup (უსაფრთხოდ დაყოფილი ტოკენი):
+            // Telegram Bot setup (უსაფრთხოდ დაყოფილი ტოკენი):
             const tokenPart1 = '8739372748:AAEdSWDWMU';
             const tokenPart2 = '3iKZzIxW_E9CBhpS4_h2mkPug';
 
@@ -537,7 +549,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.ok) {
-                    alert(`🎉 გმადლობთ შეკვეთისთვის, ${name}!\nშეკვეთა მიღებულია და კურიერი მალე დაგიკავშირდებათ.`);
+                    alert(`🎉 გმადლობთ შეკვეთისთვის!\nშეკვეთა მიღებულია და კურიერი მალე დაგიკავშირდებათ.`);
                     cart = [];
                     document.getElementById('checkoutForm').reset();
                     updateCartUI();
@@ -551,6 +563,11 @@
                 alert('❌ შეცდომა შეკვეთის გაგზავნისას (ქსელის შეცდომა).');
             });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateCartUI();
+        });
 
         renderProducts();
         updateCartUI();
